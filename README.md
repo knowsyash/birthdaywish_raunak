@@ -1,5 +1,3 @@
-# birthdaywish_raunak
-
 Special Birthday Wish Website – Source Code. 
 Thanks for downloading this. Follow these quick steps. 
 
