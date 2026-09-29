@@ -87,7 +87,6 @@ const loveHint  = $('loveHint');
 const loveNote  = $('loveNote');
 const loveNoteText = $('loveNoteText');
 const starEl    = $('star');
-const wishBtn   = $('wishBtn');
 const shuffleCard = $('shuffleCard');
 const shuffleText = $('shuffleText');
 const shuffleBtn  = $('shuffleBtn');
@@ -976,6 +975,12 @@ function openGate(){
   gate.classList.add('is-open');
   gate.removeEventListener('click', openGate);
   gate.removeEventListener('keydown', gateKey);
+  /* autoplay on first user gesture — browsers allow this */
+  bgm.play().then(() => {
+    musicToggle.setAttribute('aria-pressed', 'true');
+    musicToggle.querySelector('.musicToggle__on').hidden  = false;
+    musicToggle.querySelector('.musicToggle__off').hidden = true;
+  }).catch(() => {/* blocked — user can still tap the toggle */});
   setTimeout(enter, 480);
 }
 function gateKey(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openGate(); } }
@@ -994,11 +999,20 @@ if (reduceMotion){
   replay.addEventListener('click', resetAll);
 }
 
-/* music toggle — plays/pauses the optional /audio/theme.mp3 track */
+/* music toggle — plays/pauses the track */
 musicToggle.addEventListener('click', () => {
   const on = musicToggle.getAttribute('aria-pressed') === 'true';
-  if (on){ bgm.pause(); musicToggle.setAttribute('aria-pressed', 'false'); }
-  else { bgm.play().catch(() => {}); musicToggle.setAttribute('aria-pressed', 'true'); }
+  if (on){
+    bgm.pause();
+    musicToggle.setAttribute('aria-pressed', 'false');
+    musicToggle.querySelector('.musicToggle__on').hidden  = true;
+    musicToggle.querySelector('.musicToggle__off').hidden = false;
+  } else {
+    bgm.play().catch(() => {});
+    musicToggle.setAttribute('aria-pressed', 'true');
+    musicToggle.querySelector('.musicToggle__on').hidden  = false;
+    musicToggle.querySelector('.musicToggle__off').hidden = true;
+  }
 });
 
 /* memory lane + message wall overlay */
@@ -1033,9 +1047,12 @@ function chime(f1 = 720, f2 = 900){
    TAP-TO-REVEAL LOVE NOTES — tap a blossom on the tree once it's grown
    ============================================================ */
 const LOVE_LINES = [
-  'edit me — one sweet line ✎', 'edit me — a favourite memory ✎',
-  'edit me — an inside joke ✎', 'edit me — something you love about them ✎',
-  'edit me — a little promise ✎', 'edit me — why today is special ✎',
+  'Not every goodbye is an ending — some are just the quietest kind of love. 🌷',
+  'Distance changed things, but it couldn\'t change what you meant to me. 💛',
+  'I hope wherever you are, something today makes you smile the way you used to. 🌸',
+  'You taught me things no one else could have. That stays, even when people go. ✨',
+  'The happiest version of you is all I\'ve ever really wanted to see. 🎂',
+  'Some feelings don\'t have an expiry date — they just learn to live quietly. ❤️‍🩹',
 ];
 let loveNoteTimer = 0;
 canvas.addEventListener('click', (e) => {
@@ -1062,25 +1079,19 @@ canvas.addEventListener('click', (e) => {
   loveNoteTimer = setTimeout(() => loveNote.classList.remove('is-shown'), 2600);
 });
 
-/* ============================================================
-   MAKE A WISH — a shooting star across the memories overlay
-   ============================================================ */
-wishBtn.addEventListener('click', () => {
-  if (wishBtn.classList.contains('is-sent')) return;
-  chime(880, 1180);
-  starEl.style.left = '92%'; starEl.style.top = '18%';
-  starEl.classList.remove('is-flying');
-  requestAnimationFrame(() => starEl.classList.add('is-flying'));
-  wishBtn.textContent = '✨ wish sent'; wishBtn.classList.add('is-sent');
-  setTimeout(() => { wishBtn.textContent = '🌠 make a wish'; wishBtn.classList.remove('is-sent'); }, 2200);
-});
 
 /* ============================================================
    SHUFFLE COMPLIMENT CARD
    ============================================================ */
 const COMPLIMENTS = [
-  'edit me — reason A ✎', 'edit me — reason B ✎', 'edit me — reason C ✎',
-  'edit me — reason D ✎', 'edit me — reason E ✎', 'edit me — reason F ✎',
+  'I never stopped wishing good things for you, and I never will. \uD83C\uDF37',
+  'You made ordinary moments feel like they mattered. They still do. \uD83D\uDC9B',
+  'I\'m not asking for anything back \u2014 I just wanted you to know you were never forgotten. \uD83C\uDF38',
+  'Some people enter your life quietly and leave loudly, in the best possible way. \u2728',
+  'I hope today feels as special as the way you always made others feel. \uD83C\uDF82',
+  'There\'s a version of me that became better because of knowing you. \uD83D\uDCAB',
+  'Missing someone doesn\'t always mean you want them back \u2014 sometimes it just means they mattered. \u2764\uFE0F',
+  'On your birthday, of all days, I hope you feel truly seen and truly loved. \uD83C\uDF1F',
 ];
 let lastCompliment = -1;
 shuffleBtn.addEventListener('click', () => {
@@ -1094,7 +1105,7 @@ shuffleBtn.addEventListener('click', () => {
 /* ============================================================
    SEALED ENVELOPE — opens once, types the letter out
    ============================================================ */
-const LETTER_TEXT = "Dear you, — edit this into your own letter. Say the thing you actually want to say; the typewriter effect will do the rest justice. Happy birthday.";
+const LETTER_TEXT = `Happy Birthday. ❤️\n\nI don't know if I should say all this today, but I couldn't let your birthday pass without wishing you. No matter how much time passes, some people don't become strangers completely. You're still someone I think about, someone I still care about, and honestly, someone I still miss sometimes.\n\nI miss the little things, our conversations, the way we used to talk, and those moments that probably mean more to me now than they did back then. I won't lie and pretend that I don't have feelings left, because I do. But I'm not writing this to ask you to come back or to change anything.\n\nI just want you to know that what we had meant something to me. Maybe we weren't meant to stay together forever, but that doesn't erase everything beautiful we shared.\n\nToday, I only want you to be happy. I hope life treats you kindly, I hope you achieve everything you've dreamed of, and I hope you find someone who makes you feel loved and peaceful.\n\nAnd if someday you happen to think of me, I hope you remember me with a smile, not with regret.\n\nHappy Birthday. ❤️\nTake care of yourself. Always.`;
 let envelopeOpened = false;
 envelope.addEventListener('click', () => {
   if (envelopeOpened) return;
